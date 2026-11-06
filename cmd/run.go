@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"dagger.io/dagger"
+	"errors"
 	"fmt"
 	"github.com/opslevel/stiletto/pkg"
 	"github.com/rs/zerolog/log"
@@ -102,6 +103,11 @@ var runCmd = &cobra.Command{
 				container = container.WithExec(strings.Split(command, " "))
 			}
 			out, err := container.Stdout(ctx)
+			var execErr *dagger.ExecError
+			if errors.As(err, &execErr) {
+				log.Error().Msgf("Job %q failed running %q (exit code %d)\nstdout:\n%s\nstderr:\n%s",
+					job.Name, strings.Join(execErr.Cmd, " "), execErr.ExitCode, execErr.Stdout, execErr.Stderr)
+			}
 			cobra.CheckErr(err)
 			log.Info().Msg(out)
 
