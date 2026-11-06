@@ -1,5 +1,5 @@
 base: &base
-  image: "golang:1.20"
+  image: "golang:1.26"
   caches: &base_caches
     - name: gomodcache
       path: /cache
@@ -21,7 +21,7 @@ pipeline:
       - name: Coverage
         path: coverage.txt
   - name: Upload Coverage
-    image: debian:bullseye
+    image: debian:bookworm
     mounts:
       - host: .
         container: /workspace
@@ -34,4 +34,4 @@ pipeline:
       - apt-get install -y curl git
       - curl -Os https://uploader.codecov.io/latest/linux/codecov
       - chmod +x codecov
-      - ./codecov -R /workspace -B $(git branch --show-current) -t 464532ed-1ff3-4c0e-a803-4b9f77004715 -f ./tmp/coverage.txt
+      - ./codecov -R /workspace -t 464532ed-1ff3-4c0e-a803-4b9f77004715 -f ./tmp/coverage.txt

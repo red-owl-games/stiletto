@@ -1,5 +1,5 @@
 base: &base
-  image: "golang:1.20"
+  image: "golang:1.26"
   caches: &base_caches
     - name: gomodcache
       path: /cache
