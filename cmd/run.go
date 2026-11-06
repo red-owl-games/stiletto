@@ -42,7 +42,7 @@ var runCmd = &cobra.Command{
 			}
 		}
 
-		services := map[string]*dagger.Container{}
+		services := map[string]*dagger.Service{}
 		for _, service := range config.Services {
 			container := client.Container().From(service.Image)
 			for _, mount := range service.Mounts {
@@ -58,10 +58,12 @@ var runCmd = &cobra.Command{
 			for _, port := range service.Ports {
 				container = container.WithExposedPort(port.Port, dagger.ContainerWithExposedPortOpts{Protocol: dagger.NetworkProtocol(port.Protocol), Description: port.Name})
 			}
+			serviceOpts := dagger.ContainerAsServiceOpts{}
 			if service.Command != "" {
-				container = container.WithExec(strings.Split(service.Command, " "))
+				serviceOpts.Args = strings.Split(service.Command, " ")
+				serviceOpts.UseEntrypoint = true
 			}
-			services[service.Name] = container
+			services[service.Name] = container.AsService(serviceOpts)
 		}
 
 		artifacts := map[string]*dagger.File{}

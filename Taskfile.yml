@@ -1,0 +1,34 @@
+# https://taskfile.dev
+version: "3"
+
+vars:
+  BINARY: ./bin/stiletto
+  FILE: ./ci/test.yaml
+
+tasks:
+  default:
+    cmds:
+      - task --list
+    silent: true
+
+  build:
+    desc: Build the stiletto binary into ./bin
+    sources:
+      - "**/*.go"
+      - go.mod
+      - go.sum
+    generates:
+      - "{{.BINARY}}"
+    cmds:
+      - go build -o {{.BINARY}} .
+
+  run:
+    desc: "Run a stiletto pipeline (default: {{.FILE}}). Override with `task run FILE=./stiletto.yml` or pass extra args after `--`"
+    deps: [build]
+    cmds:
+      - "{{.BINARY}} run -f {{.FILE}} {{.CLI_ARGS}}"
+
+  test:
+    desc: Run the Go unit tests with race detection and coverage
+    cmds:
+      - go test -race -coverprofile=coverage.txt -covermode=atomic -v ./...
